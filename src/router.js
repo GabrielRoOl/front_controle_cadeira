@@ -1,19 +1,18 @@
+import Cabecalho from "componentes/Cabecalho";
+import Inicio from "paginas";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Cabecalho from "./Componetes/Cabecalho";
+
 
 function AppRoutes() {
     return (
-        <main>
             <BrowserRouter>
-                <Routes>
-                    <Route>
-                        <Cabecalho />
-                        
-                    </Route>
+            <Routes>
+                <Route>
+                    <Route path="/" element={<Inicio />}></Route>
+                </Route>
+                
                 </Routes>
             </BrowserRouter>
-        </main>
-        
     )
 }
 
