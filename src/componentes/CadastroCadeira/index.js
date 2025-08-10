@@ -58,8 +58,8 @@ function CadastroCadeira() {
             <Titulo><h1>Cadastrar Cadeira</h1></Titulo>
 
             {/* Mensagens de feedback */}
-            {mensagem && <div className="alert alert-success">{mensagem}</div>}
-            {erro && <div className="alert alert-danger">{erro}</div>}
+            {mensagem && <div className={styles.alertSuccess}>{mensagem}</div>}
+            {erro && <div className={styles.alertDanger}>{erro}</div>}
 
             {/* Formulário de cadastro */}
             <form onSubmit={handleSubmit} className={styles.form}>
