@@ -3,33 +3,42 @@ import styles from './BotaoDevolucao.module.css';
 import axios from 'axios';
 
 function BotaoDevolucao() {
-    const [idCadeira, setIdCadeira] = useState('');
+    // Estado para armazenar a cadeira selecionada
+    const [cadeiraSelecionada, setCadeiraSelecionada] = useState('CADEIRA_01');
+    // Estados para feedback ao usuário
     const [mensagem, setMensagem] = useState('');
     const [erro, setErro] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleDevolucao = async () => {
-        if (!idCadeira) {
-            setErro('Por favor, informe o ID da cadeira');
-            return;
-        }
+    // Array com todas as opções de cadeira disponíveis
+    const opcoesCadeiras = [
+        'CADEIRA_01', 'CADEIRA_02', 'CADEIRA_03',
+        'CADEIRA_04', 'CADEIRA_05', 'CADEIRA_06',
+        'CADEIRA_07', 'CADEIRA_08', 'CADEIRA_09'
+    ];
 
+    // Função para lidar com a devolução da cadeira
+    const handleDevolucao = async () => {
         setIsLoading(true);
         setErro('');
         setMensagem('');
 
         try {
-            const response = await axios.put(`http://localhost:8080/api/cadeira/devolucao/${idCadeira}`);
+            // Faz a requisição PUT para o endpoint de devolução
+            const response = await axios.put(
+                `http://localhost:8080/api/cadeira/devolucao/ECadeira/${cadeiraSelecionada}`
+            );
 
-            setMensagem(`Cadeira ${idCadeira} devolvida com sucesso!`);
-            setIdCadeira('');
+            // Feedback de sucesso
+            setMensagem(`Cadeira ${cadeiraSelecionada} devolvida com sucesso!`);
             console.log('Resposta da devolução:', response.data);
         } catch (error) {
             console.error('Erro ao devolver cadeira:', error);
 
+            // Tratamento de diferentes tipos de erros
             if (error.response) {
                 if (error.response.status === 404) {
-                    setErro(`Cadeira com ID ${idCadeira} não encontrada`);
+                    setErro(`Cadeira ${cadeiraSelecionada} não encontrada`);
                 } else {
                     setErro(`Erro ${error.response.status}: ${error.response.data.message || 'Erro ao processar devolução'}`);
                 }
@@ -45,28 +54,35 @@ function BotaoDevolucao() {
         <div className={styles.container}>
             <h2 className={styles.titulo}>Devolução de Cadeira</h2>
 
+            {/* Mensagens de feedback */}
             {mensagem && <div className={styles.mensagemSucesso}>{mensagem}</div>}
             {erro && <div className={styles.mensagemErro}>{erro}</div>}
 
             <div className={styles.formGroup}>
-                <label htmlFor="idCadeira" className={styles.label}>
-                    ID da Cadeira:
+                <label htmlFor="cadeira" className={styles.label}>
+                    Selecione a Cadeira:
                 </label>
-                <input
-                    type="text"
-                    id="idCadeira"
-                    value={idCadeira}
-                    onChange={(e) => setIdCadeira(e.target.value)}
-                    className={styles.input}
-                    placeholder="Digite o ID da cadeira"
-                />
+                {/* Dropdown de seleção de cadeiras */}
+                <select
+                    id="cadeira"
+                    value={cadeiraSelecionada}
+                    onChange={(e) => setCadeiraSelecionada(e.target.value)}
+                    className={styles.select}
+                >
+                    {opcoesCadeiras.map((cadeira) => (
+                        <option key={cadeira} value={cadeira}>
+                            {cadeira.replace('_', ' ')} {/* Transforma "CADEIRA_01" em "CADEIRA 01" */}
+                        </option>
+                    ))}
+                </select>
             </div>
 
+            {/* Botão de devolução */}
             <button
                 onClick={handleDevolucao}
-                disabled={isLoading || !idCadeira}
+                disabled={isLoading}
                 className={styles.botao}
-            >   
+            >
                 {isLoading ? 'Processando...' : 'Devolver Cadeira'}
             </button>
         </div>
