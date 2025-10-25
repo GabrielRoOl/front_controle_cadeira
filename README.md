@@ -2,7 +2,7 @@
 
 Este projeto é o frontend de um sistema de gerenciamento de logística interna para o Centro Médico Vitrium, focado no controle de empréstimos e devoluções de cadeiras de rodas. A aplicação é uma SPA (Single Page Application) desenvolvida com React.
 
---
+---
 
 ## 🚀 Demonstração
 
