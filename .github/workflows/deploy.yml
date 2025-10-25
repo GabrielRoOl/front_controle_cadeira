@@ -1,0 +1,71 @@
+# Nome do Workflow
+name: Build and Deploy to GitHub Pages
+
+# 1. Gatilho (Trigger)
+# Quando o workflow deve rodar?
+on:
+  # Roda toda vez que um 'push' é feito na branch 'main'
+  push:
+    branches: [ main ] # Mude para 'master' se for o caso
+
+# 2. Permissões
+# Permissões necessárias para o job de deploy
+permissions:
+  contents: read
+  pages: write      # Necessário para 'actions/deploy-pages'
+  id-token: write   # Necessário para 'actions/deploy-pages'
+
+# 3. Jobs
+# Tarefas que o workflow vai executar
+jobs:
+  # Job de 'build'
+  build:
+    runs-on: ubuntu-latest # Rodar em uma máquina virtual Linux (Ubuntu)
+
+    steps:
+      # Etapa 1: Baixar o código do repositório
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Etapa 2: Configurar o Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Especifique a versão do Node que seu projeto usa
+          cache: 'npm' # Habilitar cache do NPM para builds mais rápidos
+
+      # Etapa 3: Instalar as dependências
+      - name: Install dependencies
+        run: npm install
+
+      # Etapa 4: Rodar o build do React
+      # O 'PUBLIC_URL' é uma alternativa ao 'homepage' no package.json
+      # Se você já configurou o 'homepage', pode usar apenas 'npm run build'
+      - name: Build project
+        run: npm run build
+        # env:
+        #   PUBLIC_URL: /<seu-repositorio> # Descomente se não usou o 'homepage'
+
+      # Etapa 5: Fazer o upload dos arquivos de build (artefato)
+      # Isso permite que o próximo job (deploy) use esses arquivos
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./build # Pasta de build do Create React App
+
+  # Job de 'deploy'
+  deploy:
+    # O deploy só roda se o job 'build' for bem-sucedido
+    needs: build
+    runs-on: ubuntu-latest
+
+    # Configurações do ambiente de deploy (GitHub Pages)
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }} # URL do site
+
+    steps:
+      # Etapa 6: Fazer o deploy no GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 # Ação que faz o deploy
