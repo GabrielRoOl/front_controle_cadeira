@@ -2,6 +2,7 @@
   "name": "react-front-cadeira",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://gabrielrool.github.io/front_controle_cadeira",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.4",
