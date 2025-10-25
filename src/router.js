@@ -1,4 +1,3 @@
-import Cabecalho from "componentes/Cabecalho";
 import Inicio from "paginas";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
