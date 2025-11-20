@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './CadastroCadeira.module.css';
-import axios from 'axios'; 
+import axios from 'axios';
 import Titulo from 'componentes/Titulo';
 
 function CadastroCadeira() {
@@ -11,34 +11,47 @@ function CadastroCadeira() {
         cadeira: 'CADEIRA_01'
     });
 
-    // Estado para feedback ao usuário
     const [mensagem, setMensagem] = useState('');
     const [erro, setErro] = useState('');
 
-    // Função para atualizar os campos do formulário
+    // Função para atualizar os campos do formulário com validações de tamanho
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: name === 'numeroClinica' ? parseInt(value) : value // Converte para número se for o campo numeroClinica
+
+        // Validações individuais por campo
+        if (name === "nomePaciente" && value.length > 100) return;
+        if (name === "destino" && value.length > 40) return;
+        if (name === "numeroClinica" && value.length > 4) return;
+
+        setFormData(prev => ({
+            ...prev,
+            [name]: name === 'numeroClinica'
+                ? value.replace(/\D/g, "") // remove caracteres não numéricos
+                : value
         }));
     };
 
-    // Função para enviar os dados ao backend
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErro('');
         setMensagem('');
 
         try {
-            // Envia a requisição POST para o endpoint do backend
-            const response = await axios.post('http://localhost:8080/api/cadeira', formData);
+            const token = localStorage.getItem("token");
 
-            // Feedback de sucesso
+            const response = await axios.post(
+                'http://localhost:8080/api/cadeira',
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
             setMensagem('Cadastro realizado com sucesso!');
             console.log('Resposta do servidor:', response.data);
 
-            // Limpa o formulário após o sucesso
             setFormData({
                 nomePaciente: '',
                 destino: '',
@@ -47,9 +60,8 @@ function CadastroCadeira() {
             });
 
         } catch (error) {
-            // Tratamento de erros
             console.error('Erro ao cadastrar:', error);
-            setErro('Erro ao cadastrar. Por favor, tente novamente.');
+            setErro(`Cadeira ${formData.cadeira} está em uso`);
         }
     };
 
@@ -57,12 +69,12 @@ function CadastroCadeira() {
         <div className={styles.container}>
             <Titulo><h1>Cadastrar Cadeira</h1></Titulo>
 
-            {/* Mensagens de feedback */}
             {mensagem && <div className={styles.alertSuccess}>{mensagem}</div>}
             {erro && <div className={styles.alertDanger}>{erro}</div>}
 
-            {/* Formulário de cadastro */}
             <form onSubmit={handleSubmit} className={styles.form}>
+
+                {/* Nome do Paciente */}
                 <div className={styles.formGroup}>
                     <label>Nome do Paciente:</label>
                     <input
@@ -71,10 +83,12 @@ function CadastroCadeira() {
                         value={formData.nomePaciente}
                         onChange={handleChange}
                         required
-                        className={styles.formControl} 
+                        maxLength={50}  // limite no HTML
+                        className={styles.formControl}
                     />
                 </div>
 
+                {/* Destino */}
                 <div className={styles.formGroup}>
                     <label>Destino:</label>
                     <input
@@ -83,22 +97,26 @@ function CadastroCadeira() {
                         value={formData.destino}
                         onChange={handleChange}
                         required
+                        maxLength={30}  // limite no HTML
                         className={styles.formControl}
                     />
                 </div>
 
+                {/* Número da Clínica */}
                 <div className={styles.formGroup}>
                     <label>Número da Clínica:</label>
                     <input
-                        type="number"
+                        type="text"
                         name="numeroClinica"
                         value={formData.numeroClinica}
                         onChange={handleChange}
                         required
+                        maxLength={4} // máximo 4 dígitos
                         className={styles.formControl}
                     />
                 </div>
 
+                {/* Cadeira */}
                 <div className={styles.formGroup}>
                     <label>Cadeira:</label>
                     <select
@@ -116,7 +134,6 @@ function CadastroCadeira() {
                         <option value="CADEIRA_07">Cadeira 07</option>
                         <option value="CADEIRA_08">Cadeira 08</option>
                         <option value="CADEIRA_09">Cadeira 09</option>
-                        {/* Adicione outras opções conforme seu enum */}
                     </select>
                 </div>
 

@@ -24,10 +24,18 @@ function BotaoDevolucao() {
         setMensagem('');
 
         try {
-            // Faz a requisição PUT para o endpoint de devolução
+            const token = localStorage.getItem("token");
+
             const response = await axios.put(
-                `http://localhost:8080/api/cadeira/devolucao/ECadeira/${cadeiraSelecionada}`
+                `http://localhost:8080/api/cadeira/devolucao/ECadeira/${cadeiraSelecionada}`,
+                {}, // body vazio (PUT exige body, mesmo que não use)
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
             );
+
 
             // Feedback de sucesso
             setMensagem(`Cadeira ${cadeiraSelecionada} devolvida com sucesso!`);
@@ -40,7 +48,7 @@ function BotaoDevolucao() {
                 if (error.response.status === 404) {
                     setErro(`Cadeira ${cadeiraSelecionada} não encontrada`);
                 } else {
-                    setErro(`Erro ${error.response.status}: ${error.response.data.message || 'Erro ao processar devolução'}`);
+                    setErro(`Cadeira ${ cadeiraSelecionada } já foi devolvida!`);
                 }
             } else {
                 setErro('Erro de conexão com o servidor');
